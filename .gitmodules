@@ -1,0 +1,9 @@
+[submodule "quizformacao-front"]
+	path = quizformacao-front
+	url = git@github.com:QuizFormacao/quizformacao-front.git
+[submodule "quizformacao-back"]
+	path = quizformacao-back
+	url = git@github.com:QuizFormacao/quizformacao-back.git
+[submodule "db_quiz"]
+    path = db_quiz
+    url = git@github.com:QuizFormacao/db_quiz.git
