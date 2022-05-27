@@ -4,7 +4,7 @@ volumes:
   mysql-data:
 
 services:
-  #### react Develop build ####
+####### react Develop build ####
   react:
     image: node:lts-alpine
     working_dir: /usr/src/react
@@ -17,7 +17,7 @@ services:
       - NODE_ENV=development
       - REACT_APP_PROJECT_NAME=${PROJECT_NAME}
       - REACT_APP_SERVER_URL=http://localhost:${NODE_PORT}
-      - REACT_APP_HOST_NAME=${HOST_NAME}:${REACT_PORT}
+      - REACT_APP_HOST_NAME=localhost:${REACT_PORT}
     volumes:
       - ./quizformacao-front/src/:/usr/src/react/src/
       - ./quizformacao-front/public/:/usr/src/react/public/
@@ -28,65 +28,64 @@ services:
     networks:
       - bridge_net
 
-#  ##### node api #####
-#  node:
-#    image: node:lts-alpine
-#    working_dir: /usr/src/node
-#    restart: always
-#    environment:
-#      SERVER_NAME: "${PROJECT_NAME}"
-#      SERVER_HOST: "${HOST_NAME}"
-#      SERVER_PORT: "${NODE_PORT}"
-#      JWT_SECRET: "${JWT_SECRET}"
-#      TYPEORM_CONNECTION: "mysql"
-#      TYPEORM_HOST: "${HOST_NAME}"
-#      TYPEORM_PORT: "${DATABASE_PORT}"
-#      TYPEORM_DATABASE: "${DATABASE_NAME}"
-#      TYPEORM_USERNAME: "${DATABASE_USER}"
-#      TYPEORM_PASSWORD: "${DATABASE_PASSWORD}"
-#      TYPEORM_ENTITIES: "build/src/entity/**/*.js"
-#      TYPEORM_ENTITIES_DIR: "src/entity"
-#      TYPEORM_MIGRATIONS_DIR: "src/migration"
-#      TYPEORM_SYNCHRONIZE: "true"
-#      TYPEORM_LOGGING: "true"
-#      TEST_DATABASE: "${TEST_DATABASE}"
-#      DEV_DATABASE: "${DATABASE_NAME}"
-#      NODE_ENV: "development"
-#    command: sh -c "npm install && npm run dev"
-#    volumes:
-#      - ./quizformacao-back/src/:/usr/src/node/src/
-#      - ./quizformacao-back/package.json:/usr/src/node/package.json
-#      - ./quizformacao-back/package-lock.json:/usr/src/node/package-lock.json
-#      - ./quizformacao-back/tsconfig.json:/usr/src/node/tsconfig.json
-#      - ./quizformacao-back/node_modules/:/usr/src/node/node_modules/
-#    ports:
-#      - "${NODE_PORT}:${NODE_PORT}"
-#    networks:
-#      - bridge_net
-#
-#  ##### mysql #####
-#  mysql:
-#    image: mysql
-#    restart: always
-#    environment:
-#      MYSQL_DATABASE: "${DATABASE_NAME}"
-#      MYSQL_USER: "${DATABASE_USER}"
-#      MYSQL_PASSWORD: "${DATABASE_PASSWORD}"
-#      MYSQL_ROOT_PASSWORD: "${DATABASE_PASSWORD}"
-#    volumes:
-#      - mysql-data:/var/lib/mysql
-#    ports:
-#      - "${DATABASE_PORT}:3306"
-#    networks:
-#      - bridge_net
-#    command: sh -c "
-#      echo 'CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}; CREATE DATABASE IF NOT EXISTS ${TEST_DATABASE};' > /docker-entrypoint-initdb.d/init.sql;
-#      /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-#      "
+######## node api #####
+  node:
+    image: node:lts-alpine
+    working_dir: /usr/src/node
+    restart: always
+    environment:
+      SERVER_NAME: "${PROJECT_NAME}"
+      SERVER_PORT: "${NODE_PORT}"
+      JWT_SECRET: "${JWT_SECRET}"
+      TYPEORM_CONNECTION: "mysql"
+      TYPEORM_HOST: mysql
+      TYPEORM_PORT: "3306"
+      TYPEORM_DATABASE: "${DATABASE_NAME}"
+      TYPEORM_DATABASE_TEST: "${DATABASE_NAME_TEST}"
+      TYPEORM_USERNAME: "root"
+      TYPEORM_PASSWORD: "${DATABASE_PASSWORD}"
+      TYPEORM_ENTITIES: "build/src/entity/**/*.js"
+      TYPEORM_ENTITIES_DIR: "src/entity"
+      TYPEORM_MIGRATIONS_DIR: "src/migration"
+      TYPEORM_SYNCHRONIZE: "true"
+      TYPEORM_LOGGING: "true"
+      NODE_ENV: "development"
+    command: sh -c "npm install && npm run dev:full"
+    volumes:
+      - ./quizformacao-back/src/:/usr/src/node/src/
+      - ./quizformacao-back/package.json:/usr/src/node/package.json
+      - ./quizformacao-back/package-lock.json:/usr/src/node/package-lock.json
+      - ./quizformacao-back/tsconfig.json:/usr/src/node/tsconfig.json
+      - ./quizformacao-back/node_modules/:/usr/src/node/node_modules/
+      - ./quizformacao-back/tests/:/usr/src/node/tests/
+      - ./quizformacao-back/jest.config.ts/:/usr/src/node/jest.config.ts/
+    ports:
+      - "${NODE_PORT}:${NODE_PORT}"
+    links:
+      - mysql
+    networks:
+      - bridge_net
+
+######## mysql #######
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: "${DATABASE_NAME}"
+      MYSQL_USER: "${DATABASE_USER}"
+      MYSQL_PASSWORD: "${DATABASE_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${DATABASE_PASSWORD}"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: sh -c "
+      echo 'CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}; CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME_TEST};' > /docker-entrypoint-initdb.d/init.sql;
+      /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      "
+    ports:
+      - "${DATABASE_PORT}:3306"
+    networks:
+      - bridge_net
 
 networks:
   bridge_net:
     driver: bridge
-#    ipam:
-#      config:
-#        - subnet: "${HOST_NAME}/24"
