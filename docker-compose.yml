@@ -50,7 +50,7 @@ services:
       TYPEORM_SYNCHRONIZE: "true"
       TYPEORM_LOGGING: "true"
       NODE_ENV: "development"
-    command: sh -c "npm install && npm run lint:fix"
+    command: sh -c "npm install && npm run test"
     volumes:
       - ./quizformacao-back/src/:/usr/src/node/src/
       - ./quizformacao-back/package.json:/usr/src/node/package.json
