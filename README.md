@@ -9,7 +9,6 @@ aprimorar os conhecimentos sobre melhoria de processo de software
 
 ### Instalação do ambiente de desenvolvimento com docker
 - Duplique o arquivo .env.exemple removendo .exemple
-- Configure os parametros como desejar, obs host_name deve ser um ipv4
 - Instale o projeto usando `docker-compose build` 
 - E rode com `docker-compose up`
 - Ou se preferir use `docker-compose up --build` para "buildar" antes de rodar
